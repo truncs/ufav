@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ufav</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" type="text/css" href="/static/css/locations.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="/static/css/inputs.css" media="screen" />
+</head>
+<body>
+<div id="left-pane">
+
+    <input class="in" type="text" placeholder="Tag" id="name" />
+    <br />
+
+    <input class="in" type="text" placeholder="Address" id="address" />
+    <br />
+
+<button class="post">Create</button>
+
+<ul id="location-list">
+</div>
+</ul>
+<div id="right-pane">
+    <div id="map_canvas">
+
+
+    </div>
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js"></script>
+<script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js"></script>
+<script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDx-dqdr7Ckh_Lg9N3KroPZB7DRqBkTfVQ&sensor=false">
+    </script>
+<script src="/static/js/template.js"></script>
+
+<script>
+(function ($) {
+
+    var TEMPLATE_URL = '/static';
+    
+    Location = Backbone.Model.extend({
+	urlRoot: "/locations/",
+    });
+  
+    Locations = Backbone.Collection.extend({
+	model: Location,
+
+	url: '/locations/',
+
+	parse: function(resp) {
+	    return resp;
+	}
+    });
+    
+    MapView = Backbone.View.extend({
+	initialize: function(){
+	    var mapOptions = {
+		center: new google.maps.LatLng(0.0, 0.0),
+		zoom: 2,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+	    map = new google.maps.Map(document.getElementById("map_canvas"),
+				      mapOptions);
+	    markers = {};
+	}
+    });
+
+
+ 
+    LocationView = Backbone.View.extend({
+     
+	tagName: "li",
+	events: {
+	    "click .display .location-data" : "single",
+	    "dbclick div.location-text" : "updateOnEnter",
+	    "click span.location-destroy"   : "clear"
+	},
+
+	render: function() {
+	    var self = this;
+            
+            $(self.el).template(TEMPLATE_URL + '/templates/item.html', self.model.toJSON(), function() {
+                self.setText();
+            });
+            return this;
+	},
+
+	setText: function() {
+            var text = this.model.get('name');
+            this.$('.location-text').text(text);
+	    this.input = this.$('#li_name');
+	    this.input.bind('keypress', _.bind(this.updateName, this));
+	    this.address = this.$('#li_address');
+	    this.address.bind('keypress', _.bind(this.updateName, this));
+	    
+        },
+	
+	updateName: function(e){
+	    if (e.keyCode == 13) {
+		var name = this.input.val();
+		var address = this.address.val();
+		this.model.save({name: name, address: address});
+		$(this.el).removeClass("editing");
+		this.render();
+	    }
+	},
+
+	single: function(e) {
+	    var that = this;
+            clicks++;
+            if (clicks == 1) {
+		setTimeout(function() {
+		    if(clicks == 1) {
+			that.updateMap();
+		    } else {
+			that.updateOnEnter();
+		    }
+		    clicks = 0;
+		}, 300, that);
+            }
+	},
+	
+	updateMap: function() {
+
+	    var lat = this.model.get('lat');
+	    var lng = this.model.get('lng');
+	    map.setCenter(new google.maps.LatLng(lat,lng));
+	    map.setZoom(16);
+	    if (typeof markers[this.model.id] !== 'undefined') {
+		return;
+	    }
+	    markers[this.model.id] = new google.maps.Marker({
+		position: new google.maps.LatLng(lat, lng),
+		map: map,
+		icon: "http://maps.google.com/mapfiles/ms/micons/blue.png"
+	    });
+	},
+
+	updateOnEnter: function(){
+	    $(this.el).addClass("editing");
+            this.input.focus();
+	    this.input.val(this.model.get('name'));
+	    this.address.val(this.model.get('address'));
+	},
+
+	remove: function(){
+	    $(this.el).remove();
+	},
+	clear: function() {
+	    var marker = markers[this.model.id];
+	    if (typeof marker !== "undefined") {
+		marker.setMap(null);
+	    }
+	    this.model.destroy();
+	    this.remove();
+	}
+
+    });
+  
+
+    AppView = Backbone.View.extend({
+	el: $("body"),
+
+
+	initialize: function (options) {
+	    this.map = new MapView;
+	    this.locations = new Locations();
+	    var self = this;
+	    self.locations.bind('add', this.addOne, this);
+	    self.locations.bind('reset', this.addAll, this);
+	    self.locations.add($.parseJSON({{locations|tojson|safe}}));
+	    clicks = 0;
+	    
+	},
+
+	events: {'click .post': 'createOnSubmit',
+		 'reset': 'addAll',
+		 'keypress #address': 'createOnEnter'
+		},
+
+	addOne: function(location) {
+	    var view = new LocationView({model: location});
+	    $("#location-list").prepend(view.render().el);
+	    view.updateMap();
+	    $('#name').val('');
+	    $('#address').val('');
+	},
+
+	addAll: function() {
+	    this.locations.each(this.addOne);
+	},
+
+        createOnEnter: function(e) {
+	   if (e.keyCode == 13) { this.createOnSubmit(); }
+	},
+	createOnSubmit: function(){
+	    var location_name = $('#name').val();
+	    var location_address = $('#address').val();
+	    this.locations.create({name: location_name, address: location_address});
+	    
+	}
+
+    });
+
+    var appview  = new AppView;
+    
+  
+})(jQuery);
+</script>
+</body>
+</html>

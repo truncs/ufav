@@ -1,0 +1,161 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+body {
+  line-height: 1;
+  color: black;
+  background: white;
+  height: 100%;
+}
+ol, ul {
+  list-style: none;
+}
+a img {
+  border: none;
+}
+
+html {
+  background: #eeeeee;
+  height: 100%;
+}
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4em;
+    background: #eeeeee;
+    color: #333333;
+    height:100%;
+  }
+
+.location-remove {
+    position: absolute;
+    right: 0;
+    top: 24px;
+}
+#left-pane {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding-left:20px;
+    width: 400px;
+    border-style:solid;
+    border-right:thick  #000000;
+    height:100%;
+}
+
+#right-pane {
+    padding-left: 430px;
+    height:100%;
+}
+
+#map_canvas{
+  height: 100%;
+  width:100%;
+}
+
+.in {
+    width: 85%;
+    margin: 10px;
+    height: 30px;
+}
+
+.location-remove-icon {
+    /*
+    Delete icon courtesy of The Noun Project:
+    http://thenounproject.com/noun/delete/
+    */
+    background: url(../images/destroy.png) no-repeat;
+    display: block;
+    height: 20px;
+    opacity: 0.2;
+    
+    width: 23px;
+}
+
+.location-remove:hover .location-remove-icon { opacity: 1.0; }
+
+.location-hover .location-remove-icon,
+.location-remove:focus .location-remove-icon { visibility: visible; }
+
+#location-list li:hover {
+    color: #336699;
+}
+
+.location-address {
+    font-size: 12px;
+}
+#location-list {
+    padding-left: 20px;
+}
+#location-list {
+  margin-top: 10px;
+}
+  #location-list li {
+    padding: 12px 20px 11px 0;
+    position: relative;
+    font-size: 24px;
+    line-height: 1.1em;
+    border-bottom: 1px solid #cccccc;
+  }
+    #location-list li:after {
+      content: "\0020";
+      display: block;
+      height: 0;
+      clear: both;
+      overflow: hidden;
+      visibility: hidden;
+    }
+    #location-list li.editing {
+      padding: 0;
+      border-bottom: 0;
+    }
+  #location-list .editing .display,
+  #location-list .edit {
+    display: none;
+  }
+    #location-list .editing .edit {
+      display: block;
+    }
+    #location-list .editing input {
+    }
+  #todo-list .check {
+    position: relative;
+    top: 9px;
+    margin: 0 10px 0 7px;
+    float: left;
+  }
+  #location-list .done .todo-text {
+    text-decoration: line-through;
+    color: #777777;
+  }
+  #location-list .location-destroy {
+    position: absolute;
+    right: 0;
+    top: 24px;
+    background: url(../images/destroy.png) no-repeat;
+    display: block;
+    height: 20px;
+    opacity: 0.4;
+    
+    width: 23px;
+  }
+
+    #location-list .location-destroy:hover {
+      opacity: 1.0;
+    }
+
